@@ -24,3 +24,10 @@ func TestNewErr(t *testing.T) {
 		t.Errorf("error not formatted properly: (-got,+want):\n%s", diff)
 	}
 }
+
+func TestNilErr(t *testing.T) {
+	got := NewErr(nil)
+	if got != nil {
+		t.Error("returned error should have been nil")
+	}
+}

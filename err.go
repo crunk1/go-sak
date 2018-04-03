@@ -39,6 +39,9 @@ func Errf(format string, a ...interface{}) error {
 }
 
 func NewErr(payload interface{}) error {
+	if payload == nil {
+		return nil
+	}
 	e := new(sErr)
 	if p, ok := payload.(string); ok {
 		e.payload = p
