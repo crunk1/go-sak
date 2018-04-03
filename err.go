@@ -35,10 +35,10 @@ func (e *sErr) format() {
 }
 
 func Errf(format string, a ...interface{}) error {
-	return NewErr(fmt.Sprintf(format, a...))
+	return Err(fmt.Sprintf(format, a...))
 }
 
-func NewErr(payload interface{}) error {
+func Err(payload interface{}) error {
 	if payload == nil {
 		return nil
 	}
