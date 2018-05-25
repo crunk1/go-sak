@@ -71,6 +71,26 @@ func TestFirst(t *testing.T) {
 	}
 }
 
+func TestIndex(t *testing.T) {
+	x := 3
+
+	tests := []struct {
+		desc string
+		iterator Iterator
+		want int
+	} {
+		{"found case", Iter([]int{1,2,3}), 2},
+		{"not found case", Iter([]int{-1, -3}), -1},
+		{"not found empty case", Iter([]int{}), -1},
+	}
+	for _, tt := range tests {
+		got := Index(x, tt.iterator)
+		if got != tt.want {
+			t.Errorf("%s: got=%d want=%d", tt.desc, got, tt.want)
+		}
+	}
+}
+
 func TestIter(t *testing.T) {
 	want := []int{0,1,2}
 	i := Iter(want)
