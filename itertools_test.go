@@ -148,6 +148,12 @@ func TestIter_Len(t *testing.T) {
 			t.Errorf("%s: got=%d want=%d", tt.desc, got, tt.want)
 		}
 	}
+
+	i := &iter{data: reflect.ValueOf([]int{0,1,2})}
+	i.Next()
+	if i.Len() != 2 {
+		t.Error("Len() should have returned 2 (one less than 3 after a Next())")
+	}
 }
 
 func TestIter_Next(t *testing.T) {
