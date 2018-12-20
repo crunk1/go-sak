@@ -17,32 +17,37 @@ type Iterator interface {
 	Next() interface{}
 }
 
-type iter struct {
+// sakIterator is a wrapper for Arrays and Slices passed to Iter.
+type sakIterator struct {
 	data reflect.Value
 	pos int
 }
 
-func (i *iter) HasNext() bool {
+func (i *sakIterator) HasNext() bool {
 	return i.Len() > 0
 }
 
-func (i *iter) Len() int {
+func (i *sakIterator) Len() int {
 	return i.data.Len() - i.pos
 }
 
-func (i *iter) Next() interface{} {
+func (i *sakIterator) Next() interface{} {
 	defer func() { i.pos++ }()
 	return i.data.Index(i.pos).Interface()
 }
 
-// Iter returns an Iterator around an iterable, specifically: an array, a slice, or another Iterator.
+// Iter returns an Iterator around an iterable, specifically:
+//   an array, a slice, an Iterable, or another Iterator.
 // Calling Iter on an Iterator is idempotent and just returns the Iterator.
 func Iter(iterable interface{}) Iterator {
-	i := &iter{pos: 0}
 	if iterator, ok := iterable.(Iterator); ok {
 		return iterator
 	}
+	if iterable, ok := iterable.(Iterable); ok {
+		return iterable.Iter()
+	}
 
+	i := &sakIterator{pos: 0}
 	switch reflect.TypeOf(iterable).Kind() {
 	case reflect.Slice, reflect.Array:
 		i.data = reflect.ValueOf(iterable)
@@ -53,12 +58,13 @@ func Iter(iterable interface{}) Iterator {
 }
 
 // Any returns true if any element in iter satisfies fn.
-func Any(fn func(i interface{}) bool, iter Iterator) bool {
-	return First(fn, iter) != nil
+func Any(fn func(elem interface{}) bool, iterable interface{}) bool {
+	return Or(fn, iterable) != nil
 }
 
 // All returns true if all elements in iter satisfy fn.
-func All(fn func(i interface{}) bool, iter Iterator) bool {
+func All(fn func(elem interface{}) bool, iterable interface{}) bool {
+	iter := Iter(iterable)
 	for iter.HasNext() {
 		if t := fn(iter.Next()); !t {
 			return false
@@ -67,27 +73,44 @@ func All(fn func(i interface{}) bool, iter Iterator) bool {
 	return true
 }
 
-// First returns the first element from iter that satisfies fn.
-func First(fn func(i interface{}) bool, iter Iterator) interface{} {
+// Or returns the first element from iter that satisfies fn.
+// Returns nil if no element satifies fn.
+func Or(fn func(elem interface{}) bool, iterable interface{}) interface{} {
+	iter := Iter(iterable)
 	for iter.HasNext() {
-		i := iter.Next()
-		if t := fn(i); t {
-			return i
+		elem := iter.Next()
+		if t := fn(elem); t {
+			return elem
 		}
 	}
 	return nil
 }
 
-// Index returns the index of the element into the data structure behind iter.
+// Index returns the index of elem into the data structure behind iterable.
 // This only makes sense if the backing data structure is ordered and indexable.
-// This uses shallow equivalence.
-// Returns -1 if element is not found in iter.
-func Index(element interface{}, iter Iterator) int {
+// Returns -1 if elem is not found in iterable.
+// elem and elements in iterable must be comparable.
+func Index(elem interface{}, iterable interface{}) int {
+	iter := Iter(iterable)
 	for idx := 0; iter.HasNext(); idx++ {
-		i := iter.Next()
-		if i == element {
+		elemFromIterable := iter.Next()
+		if elem == elemFromIterable {
 			return idx
 		}
 	}
 	return -1
 }
+
+// In returns true if elem is found in iterable.
+// elem and elements in iterable must be comparable.
+func In(elem interface{}, iterable interface{}) bool {
+	iter := Iter(iterable)
+	for idx := 0; iter.HasNext(); idx++ {
+		elemFromIterable := iter.Next()
+		if elemFromIterable == elem {
+			return true
+		}
+	}
+	return false
+}
+
