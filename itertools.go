@@ -2,7 +2,7 @@ package sak
 
 // Any returns true if any element in iter satisfies fn.
 func Any(fn func(elem interface{}) bool, iterable interface{}) bool {
-	return Or(fn, iterable) != nil
+	return First(fn, iterable) != nil
 }
 
 // All returns true if all elements in iter satisfy fn.
@@ -27,6 +27,19 @@ func Filter(fn func(elem interface{}) bool, iterable interface{}) []interface{} 
 		}
 	}
 	return results
+}
+
+// First returns the first element from iter that satisfies fn.
+// Returns nil if no element satisfies fn.
+func First(fn func(elem interface{}) bool, iterable interface{}) interface{} {
+	iter := Iter(iterable)
+	for iter.HasNext() {
+		elem := iter.Next()
+		if t := fn(elem); t {
+			return elem
+		}
+	}
+	return nil
 }
 
 // In returns true if elem is found in iterable.
@@ -57,19 +70,6 @@ func Index(elem interface{}, iterable interface{}) int {
 	return -1
 }
 
-// Or returns the first element from iter that satisfies fn.
-// Returns nil if no element satifies fn.
-func Or(fn func(elem interface{}) bool, iterable interface{}) interface{} {
-	iter := Iter(iterable)
-	for iter.HasNext() {
-		elem := iter.Next()
-		if t := fn(elem); t {
-			return elem
-		}
-	}
-	return nil
-}
-
 func IntIn(i int, is []int) bool {
 	fn := func(x interface{}) bool {
 		return i == x
@@ -84,7 +84,7 @@ func IntOr(i int, is ...int) int {
 	fn := func(x interface{}) bool {
 		return x != 0
 	}
-	result := Or(fn, is)
+	result := First(fn, is)
 	if result == nil {
 		return 0
 	}
@@ -105,7 +105,7 @@ func StrOr(s string, ss ...string) string {
 	fn := func(i interface{}) bool {
 		return i != ""
 	}
-	result := Or(fn, ss)
+	result := First(fn, ss)
 	if result == nil {
 		return ""
 	}
@@ -126,7 +126,7 @@ func UintOr(i uint, is ...uint) uint {
 	fn := func(x interface{}) bool {
 		return x != 0
 	}
-	result := Or(fn, is)
+	result := First(fn, is)
 	if result == nil {
 		return 0
 	}

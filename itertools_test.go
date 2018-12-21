@@ -71,6 +71,28 @@ func TestFilter(t *testing.T) {
 	}
 }
 
+func TestFirst(t *testing.T) {
+	isPos := func(i interface{}) bool {
+		return i.(int) > 0
+	}
+	tests := []struct {
+		desc     string
+		iterable interface{}
+		want     interface{}
+	}{
+		{"first found case", []int{-1, 2, -3}, 2},
+		{"none found case", []int{-1, -3}, nil},
+		{"none found empty case", []int{}, nil},
+	}
+
+	for _, tt := range tests {
+		got := First(isPos, tt.iterable)
+		if got != tt.want {
+			t.Errorf("%s: got=%v want=%v", tt.desc, got, tt.want)
+		}
+	}
+}
+
 func TestIn(t *testing.T) {
 	x := 3
 
@@ -107,28 +129,6 @@ func TestIndex(t *testing.T) {
 		got := Index(x, tt.iterable)
 		if got != tt.want {
 			t.Errorf("%s: got=%d want=%d", tt.desc, got, tt.want)
-		}
-	}
-}
-
-func TestOr(t *testing.T) {
-	isPos := func(i interface{}) bool {
-		return i.(int) > 0
-	}
-	tests := []struct {
-		desc     string
-		iterable interface{}
-		want     interface{}
-	}{
-		{"first found case", []int{-1, 2, -3}, 2},
-		{"none found case", []int{-1, -3}, nil},
-		{"none found empty case", []int{}, nil},
-	}
-
-	for _, tt := range tests {
-		got := Or(isPos, tt.iterable)
-		if got != tt.want {
-			t.Errorf("%s: got=%v want=%v", tt.desc, got, tt.want)
 		}
 	}
 }
