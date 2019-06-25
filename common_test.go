@@ -25,6 +25,11 @@ func Test_IsZero(t *testing.T) {
 	p2 = &someInt
 	var ss1, ss2 []string
 	ss2 = make([]string, 0)
+	type someStruct struct {
+		X int
+		Y *int
+		Z string
+	}
 
 	cases := []struct {
 		input interface{}
@@ -81,7 +86,10 @@ func Test_IsZero(t *testing.T) {
 		{ss2, false},
 		{"", true},
 		{"foo", false},  // 50
-
+		{someStruct{}, true},
+		{someStruct{X:1}, false},
+		{someStruct{Y:&someInt}, false},
+		{someStruct{Z:"foo"}, false},
 	}
 
 	for i, c := range cases {
