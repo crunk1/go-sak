@@ -1,4 +1,4 @@
-# nilable
+# nilable [![GoDoc](https://godoc.org/github.com/crunk1/go-sak/nilable?status.svg)](https://godoc.org/github.com/crunk1/go-sak/nilable)
 `import "github.com/crunk1/go-sak/nilable"`
 
 nilable provides type-wrappers around all Go primitives. These types represent
