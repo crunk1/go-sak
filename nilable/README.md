@@ -2,7 +2,7 @@
 `import "github.com/crunk1/go-sak/nilable"`
 
 nilable provides type-wrappers around all Go primitives. These types represent
-the primitive data types, but also allows for nil values.
+the primitive data types, but also allow for nil values.
  
 Example:
 ```go
